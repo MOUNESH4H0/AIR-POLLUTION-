@@ -1,0 +1,53 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import datetime 
+import matplotlib.dates as md
+
+# Load the dataset
+df = pd.read_csv('pollution.csv')
+df.head()
+
+# Drop the entry_id column
+df.drop("entry_id", axis=1, inplace=True)
+df.head()
+
+# Find the maximum pollution values and corresponding times
+max_pollution_chadni = df[df['Chadni Chowk'] == df['Chadni Chowk'].max()][['created_at', 'Chadni Chowk']]
+max_pollution_gariahat = df[df['Gariahat'] == df['Gariahat'].max()][['created_at', 'Gariahat']]
+max_pollution_dharmatala = df[df['Dharmatala'] == df['Dharmatala'].max()][['created_at', 'Dharmatala']]
+
+# Print max pollution times and values
+print("Max pollution at Chadni Chowk:")
+print(max_pollution_chadni)
+print("Max pollution at Gariahat:")
+print(max_pollution_gariahat)
+print("Max pollution at Dharmatala:")
+print(max_pollution_dharmatala)
+
+# Plot pollution levels at each location
+def plot_pollution_levels(location, color):
+    plt.figure(figsize=(12, 8))
+    plt.rcParams.update({'font.size': 15})
+    x = pd.to_datetime(df['created_at'])
+    y = df[location]
+    plt.plot_date(x, y, '-', color=color)
+    plt.xlabel("Date & Hour")
+    plt.ylabel("Pollution Level")
+    plt.title(f"Hourly Pollution Level at {location}")
+    plt.show()
+
+plot_pollution_levels('Chadni Chowk', 'blue')
+plot_pollution_levels('Gariahat', 'green')
+plot_pollution_levels('Dharmatala', 'red')
+
+# Pairplot without hue for more generalized insight
+sns.set(font_scale=1.5)
+g = sns.pairplot(df)
+g.fig.set_size_inches(15, 15)
+
+# Jointplots between different locations to compare pollution levels
+sns.jointplot(x="Chadni Chowk", y="Gariahat", data=df, kind='hex', color='green')
+sns.jointplot(x="Chadni Chowk", y="Dharmatala", data=df, kind='kde', color='red')
+sns.jointplot(x="Dharmatala", y="Gariahat", data=df, kind='reg', color='k')
